@@ -1,0 +1,16 @@
+.givingWizard {
+	display: block;
+	position: relative;
+}
+
+	.givingWizard > ul {
+		display: block;
+		position: absolute;
+		top: 0px;
+		left: 0px;
+	}
+
+		.givingWizard > ul > li {
+			display: inline-block;
+			position: relative;
+		}

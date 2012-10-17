@@ -55,12 +55,14 @@ jQuery.noConflict();
 			});
 		},
 		initPanels = function () {
-			// TODO: Fix selectors & implement handlers to animate panes left/right in the viewport
 			$('.givingWizard > ul .next').live('click', function () {
+				// TODO: Validate form fields before proceeding...
+				$('.givingWizard > ul').animate({ left: '+=' + $(this).parent().parent().outerWidth() })
 				return false;
 			});
 
 			$('.givingWizard > ul .back').live('click', function () {
+				$('.givingWizard > ul').animate({ left: '-=' + $(this).parent().parent().outerWidth() });
 				return false;
 			});
 

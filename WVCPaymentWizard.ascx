@@ -33,6 +33,10 @@
                     </li>
                 </ul>
             </fieldset>
+            <div class="buttonset">
+                <input type="submit" class="next" value="Next" />
+                <a href="#" class="back" title="Back">Back</a>
+            </div>
         </li>
         <li>
             <fieldset>
@@ -57,6 +61,10 @@
                     </li>
                 </ul>
             </fieldset>
+            <div class="buttonset">
+                <input type="submit" class="next" value="Next" />
+                <a href="#" class="back" title="Back">Back</a>
+            </div>
         </li>
         <li>
             <fieldset>
@@ -99,6 +107,10 @@
                     <li>Add check image...</li>
                 </ul>
             </fieldset>
+            <div class="buttonset">
+                <input type="submit" class="next" value="Next" />
+                <a href="#" class="back" title="Back">Back</a>
+            </div>
         </li>
         <li>
             <asp:PlaceHolder runat="server" ID="phVerification" class="verification" />
