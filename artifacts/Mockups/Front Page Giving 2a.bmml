@@ -1,0 +1,71 @@
+<mockup version="1.0" skin="sketch" measuredW="1045" measuredH="756" mockupW="1014" mockupH="739">
+  <controls>
+    <control controlID="0" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="31" y="17" w="1014" h="739" measuredW="450" measuredH="400" zOrder="0" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>http%3A//www.woodmenvalley.org/</text>
+      </controlProperties>
+    </control>
+    <control controlID="4" controlTypeID="com.balsamiq.mockups::Image" x="34" y="362" w="-1" h="-1" measuredW="187" measuredH="167" zOrder="1" locked="false" isInGroup="-1">
+      <controlProperties>
+        <filter>true</filter>
+        <src>https%3A//www.woodmenvalley.org/images/layouts/logo.png</src>
+        <text/>
+      </controlProperties>
+    </control>
+    <control controlID="5" controlTypeID="com.balsamiq.mockups::ButtonBar" x="532" y="362" w="-1" h="-1" measuredW="372" measuredH="29" zOrder="2" locked="false" isInGroup="-1">
+      <controlProperties>
+        <selectedIndex>3</selectedIndex>
+        <text>Service%20Times%2C%20Site%20Index%2C%20Contact%2C%20Give%20Now</text>
+      </controlProperties>
+    </control>
+    <control controlID="6" controlTypeID="com.balsamiq.mockups::TextInput" x="926" y="366" w="-1" h="-1" measuredW="56" measuredH="27" zOrder="3" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Search</text>
+      </controlProperties>
+    </control>
+    <control controlID="7" controlTypeID="com.balsamiq.mockups::Button" x="980" y="368" w="-1" h="-1" measuredW="41" measuredH="27" zOrder="4" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Go</text>
+      </controlProperties>
+    </control>
+    <control controlID="8" controlTypeID="com.balsamiq.mockups::Canvas" x="32" y="87" w="1013" h="275" measuredW="100" measuredH="70" zOrder="5" locked="false" isInGroup="-1"/>
+    <control controlID="9" controlTypeID="com.balsamiq.mockups::Button" x="828" y="335" w="-1" h="-1" measuredW="56" measuredH="27" zOrder="6" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Close</text>
+      </controlProperties>
+    </control>
+    <control controlID="12" controlTypeID="__group__" x="60" y="88" w="945" h="240" measuredW="945" measuredH="240" zOrder="7" locked="false" isInGroup="-1">
+      <controlProperties>
+        <controlName>iframe</controlName>
+      </controlProperties>
+      <groupChildrenDescriptors>
+        <control controlID="0" controlTypeID="com.balsamiq.mockups::Canvas" x="0" y="0" w="945" h="240" measuredW="100" measuredH="70" zOrder="0" locked="false" isInGroup="12"/>
+        <control controlID="4" controlTypeID="com.balsamiq.mockups::TextInput" x="394" y="90" w="-1" h="-1" measuredW="73" measuredH="27" zOrder="1" locked="false" isInGroup="12">
+          <controlProperties>
+            <text>Username</text>
+          </controlProperties>
+        </control>
+        <control controlID="5" controlTypeID="com.balsamiq.mockups::TextInput" x="393" y="124" w="-1" h="-1" measuredW="68" measuredH="27" zOrder="2" locked="false" isInGroup="12">
+          <controlProperties>
+            <text>Password</text>
+          </controlProperties>
+        </control>
+        <control controlID="6" controlTypeID="com.balsamiq.mockups::Button" x="445" y="160" w="-1" h="-1" measuredW="54" measuredH="27" zOrder="3" locked="false" isInGroup="12">
+          <controlProperties>
+            <text>Login</text>
+          </controlProperties>
+        </control>
+        <control controlID="7" controlTypeID="com.balsamiq.mockups::Link" x="482" y="93" w="-1" h="-1" measuredW="115" measuredH="21" zOrder="4" locked="false" isInGroup="12">
+          <controlProperties>
+            <text>Forgot%20Username%3F</text>
+          </controlProperties>
+        </control>
+        <control controlID="8" controlTypeID="com.balsamiq.mockups::Link" x="482" y="127" w="-1" h="-1" measuredW="109" measuredH="21" zOrder="5" locked="false" isInGroup="12">
+          <controlProperties>
+            <text>Forgot%20Password%3F</text>
+          </controlProperties>
+        </control>
+      </groupChildrenDescriptors>
+    </control>
+  </controls>
+</mockup>
