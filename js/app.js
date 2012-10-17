@@ -1,7 +1,7 @@
 'use strict';
 jQuery.noConflict();
 
-(function ($) {	
+(function ($) {
 	var initJsPlaceholders = function () {
 			$('input[placeholder]').each(function () {
 				var $this = $(this);
@@ -36,7 +36,7 @@ jQuery.noConflict();
 				city: $('[id$="tbCity"]').val(),
 				state: $('[id$="tbState"]').val(),
 				zip: $('[id$="tbZip"]').val(),
-				comment: $('[id$="tbComment"]').val()
+				comment: $('[id$="tbComment"]').val(),
 				paymentMethod: $('[id$="rblPaymentMethod"]:checked').text(),	// TODO: Make sure this grabs the text value of the radio button
 				ccNumber: maskNumber($('input[id$="tbCCNumber"]').val()),
 				expDate: $('[id$="ddlExpMonth"]').val() + '/' + $('[id$="ddlExpYear"]').val(),
@@ -48,16 +48,15 @@ jQuery.noConflict();
 			};
 
 			$.get('UserControls/Custom/WVC/WvcPaymentWizard/templates/verification.html', function (text) {
-				var template = Handlbars.compile(text),
-					html = template(fields);
-
+				// Handlebars.compile() returns a function. Call it and pass in our data...
+				var html = Handlebars.compile(text)(fields);
 				$('.verification').empty().append(html);
 			});
 		},
 		initPanels = function () {
 			$('.givingWizard > ul .next').live('click', function () {
 				// TODO: Validate form fields before proceeding...
-				$('.givingWizard > ul').animate({ left: '+=' + $(this).parent().parent().outerWidth() })
+				$('.givingWizard > ul').animate({ left: '+=' + $(this).parent().parent().outerWidth() });
 				return false;
 			});
 
@@ -72,7 +71,7 @@ jQuery.noConflict();
 			});
 		};
 
-	$(function {
+	$(function () {
 		if (!Modernizr.input.placeholder) {
 			initJsPlaceholders();
 		}
