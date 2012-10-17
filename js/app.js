@@ -22,32 +22,50 @@ jQuery.noConflict();
 					}
 				});
 		},
-		initVerification = function () {
+		maskNumber = function (str) {
+			return str.substring(0, str.length - 4).replace(/./gi, 'x') + str.substring(str.length - 4);
+		},
+		showVerification = function () {
+			// TODO: Figure out fund selection?
+			var fields = {
+				firstName: $('[id$="tbFirstName"]').val(),
+				lastName: $('[id$="tbLastName"]').val(),
+				email: $('[id$="tbEmail"]').val(),
+				phone: $('[id$="tbPhone"]').val(),
+				address1: $('[id$="tbAddress1"]').val(),
+				city: $('[id$="tbCity"]').val(),
+				state: $('[id$="tbState"]').val(),
+				zip: $('[id$="tbZip"]').val(),
+				comment: $('[id$="tbComment"]').val()
+				paymentMethod: $('[id$="rblPaymentMethod"]:checked').text(),	// TODO: Make sure this grabs the text value of the radio button
+				ccNumber: maskNumber($('input[id$="tbCCNumber"]').val()),
+				expDate: $('[id$="ddlExpMonth"]').val() + '/' + $('[id$="ddlExpYear"]').val(),
+				cvv: $('[id$="tbCCCIN"]').val(),
+				bankName: $('[id$="tbBankName"]').val(),
+				accountType: $('[id$="rblAccountType"]:checked').text(),		// TODO: Make sure this grabs the text value of the radio button
+				routingNumber: $('[id$="tbRoutingNumber"]').val(),
+				accountNumber: maskNumber($('[id$="tbAccountNumber"]').val())
+			};
+
 			$.get('UserControls/Custom/WVC/WvcPaymentWizard/templates/verification.html', function (text) {
-				// TODO: Double check selectors...
-				var fields = {
-						firstName: $('input[id$="firstName"]').val(),
-						lastName: $('input[id$="lastName"]').val()
-					},
-					template = Handlbars.compile(text),
+				var template = Handlbars.compile(text),
 					html = template(fields);
 
-				// TODO: Fix selector...
-				$('.givingWizard > ul > li:last-child').before(html);
+				$('.verification').empty().append(html);
 			});
 		},
 		initPanels = function () {
 			// TODO: Fix selectors & implement handlers to animate panes left/right in the viewport
-			$('#ball-o-wax .next').live('click', function () {
+			$('.givingWizard > ul .next').live('click', function () {
 				return false;
 			});
 
-			$('#ball-o-wax .back').live('click', function () {
+			$('.givingWizard > ul .back').live('click', function () {
 				return false;
 			});
 
-			$('.verify').click(function () {
-				initVerification();
+			$('.givingWizard > ul .verify').click(function () {
+				showVerification();
 				return false;
 			});
 		};
