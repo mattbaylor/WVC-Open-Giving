@@ -31,6 +31,15 @@
             }
         }
 
+        [TextSetting("Check Image URL", "URL for a check image that shows how to locate the routing number and account number from a blank check", false)]
+        public string CheckImageURLSetting
+        {
+            get
+            {
+                return base.Setting("CheckImageURL", "", false);
+            }
+        }
+
         [TextSetting("Comment Caption", "By default the comment passed to the payment processor will include a list of fund IDs and amounts that the user specified.  You can optionally prompt the user for a value to include as the comment (i.e. purpose) by including a caption here.", false)]
         public string CommentCaptionSetting
         {
@@ -76,6 +85,8 @@
             }
         }
 
+        
+
         private GatewayAccount ccGatewayAcct = null;
         private GatewayAccount achGatewayAcct = null;
 
@@ -86,9 +97,12 @@
             if (!IsPostBack)
             {
                 PopulateStaticControls();
-                FundCollection fundCollection = new FundCollection(CurrentArenaContext.Organization.OrganizationID);
-                repFundList.DataSource = fundCollection.DataTable();
-                repFundList.DataBind();
+                this.fundAmountsControl.OrganizationID = base.CurrentOrganization.OrganizationID;
+                this.fundAmountsControl.MinimumAmount = this.MinimumGivingAmountSetting;
+                this.fundAmountsControl.MaximumAmount = this.MaximumGivingAmountSetting;
+                this.fundAmountsControl.FundList = this.FundListSetting;
+                this.imgCheckImage.ImageUrl = this.CheckImageURLSetting;
+                this.tbComment.Attributes["placeholder"] = this.CommentCaptionSetting;
             }
             else
             {
@@ -97,11 +111,6 @@
                 if (iPersonId != 0)
                 {
                     Person person = new Person(iPersonId);
-
-                    foreach (RepeaterItem repeaterItem in repFundList.Items)
-                    {
-                        TextBox textBox = (TextBox)(repeaterItem.FindControl("tbFund"));
-                    }
                 }
             }
         }
@@ -117,6 +126,8 @@
             {
                 ddlExpYear.Items.Add(new ListItem(year.ToString(), year.ToString()));
             }
+            ddlAccountType.Items.Add(new ListItem("Checking", "Checking"));
+            ddlAccountType.Items.Add(new ListItem("Savings", "Savings"));
         }
 
         protected int GetPersonIdFromInputData()

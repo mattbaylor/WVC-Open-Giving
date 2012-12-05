@@ -8,28 +8,28 @@
                 <legend>Personal Information</legend>
                 <ul>
                     <li>
-                        <asp:TextBox runat="server" ID="tbFirstName" PlaceHolder="First Name" />
+                        <asp:TextBox runat="server" ID="tbFirstName" placeholder="First Name"/>
                     </li>
                     <li>
-                        <asp:TextBox runat="server" ID="tbLastName" PlaceHolder="Last Name" />
+                        <asp:TextBox runat="server" ID="tbLastName" placeholder="Last Name"/>
                     </li>
                     <li>
-                        <asp:TextBox runat="server" ID="tbEmail" PlaceHolder="Email" />
+                        <asp:TextBox runat="server" ID="tbEmail" placeholder="Email Address"/>
                     </li>
                     <li>
-                        <asp:TextBox runat="server" ID="tbPhone" PlaceHolder="Phone Number" />
+                        <asp:TextBox runat="server" ID="tbPhone" placeholder="Phone Number"/>
                     </li>
                     <li>
-                        <asp:TextBox runat="server" ID="tbAddress1" PlaceHolder="Address" />
+                        <asp:TextBox runat="server" ID="tbAddress1" placeholder="Address"/>
                     </li>
                     <li>
-                        <asp:TextBox runat="server" ID="tbCity" PlaceHolder="City" />
+                        <asp:TextBox runat="server" ID="tbCity" placeholder="City" />
                     </li>
                     <li>
-                        <asp:TextBox runat="server" ID="tbState" PlaceHolder="State" />
+                        <asp:TextBox runat="server" ID="tbState" placeholder="State" />
                     </li>
                     <li>
-                        <asp:TextBox runat="server" ID="tbZip" PlaceHolder="Zip" />
+                        <asp:TextBox runat="server" ID="tbZip" placeholder="Zip Code" />
                     </li>
                 </ul>
             </fieldset>
@@ -40,24 +40,13 @@
         </li>
         <li>
             <fieldset>
-                <legend>Fund Information</legend>
-                <asp:Repeater runat="server" ID="repFundList">
-                    <HeaderTemplate>
-                        <ul>
-                    </HeaderTemplate>
-                    <ItemTemplate>
-                        <li>
-                            <asp:HiddenField runat="server" ID="hfFundId" />
-                            <asp:TextBox runat="server" ID="tbFund" PlaceHolder="<%# Eval("Name") %>" />
-                        </li>
-                    </ItemTemplate>
-                    <FooterTemplate>
-                        </ul>
-                    </FooterTemplate>
-                </asp:Repeater>            
+                <legend>Gift Information</legend>
+
+                <uc1:FundAmountAllocation ID="fundAmountsControl" IsRequired="true" runat="server" />
+
                 <ul>
                     <li>
-                        <asp:TextBox runat="server" ID="tbComment" PlaceHolder="Comment" />
+                        <asp:TextBox runat="server" ID="tbComment" placeholder="Comment" />
                     </li>
                 </ul>
             </fieldset>
@@ -71,7 +60,7 @@
                 <legend>Payment Information</legend>
                 <ul>
                     <li>
-                        <asp:RadioButtonList runat="server" ID="rblPaymentMethod" PlaceHolder="PaymentMethod">
+                        <asp:RadioButtonList runat="server" ID="rblPaymentMethod">
                             <asp:ListItem Text="Credit Card" Value="CC" />
                             <asp:ListItem Text="ACH" Value="ACH" />
                         </asp:RadioButtonList>
@@ -79,32 +68,33 @@
                 </ul>
                 <ul>
                     <li>
-                        <asp:TextBox runat="server" ID="tbCCNumber" PlaceHolder="CCNumber" />
+                        <asp:TextBox runat="server" ID="tbCCNumber" placeholder="Credit Card" />
                     </li>
                     <li>
-                        <asp:TextBox runat="server" ID="tbCCCIN" PlaceHolder="CCCIN" />
+                        <asp:TextBox runat="server" ID="tbCCCIN" placeholder="Security Code" />
                     </li>
                     <li>
-                        <asp:DropDownList runat="server" ID="ddlExpMonth" PlaceHolder="ExpMonth" />
-                    </li>
-                    <li>
-                        <asp:DropDownList runat="server" ID="ddlExpYear" PlaceHolder="ExpYear" />
+                        <label for="expDetails">Expiration</label>
+                        <span id="expDetails">
+                        <asp:DropDownList runat="server" ID="ddlExpMonth" />
+                        <asp:DropDownList runat="server" ID="ddlExpYear" />
+                        </span>
                     </li>
                 </ul>
                 <ul>
                     <li>
-                        <asp:TextBox runat="server" ID="tbBankName" PlaceHolder="BankName" />
+                        <asp:TextBox runat="server" ID="tbBankName" placeholder="Bank Name" />
                     </li>
                     <li>
-                        <asp:PlaceHolder runat="server" ID="rblAccountType" PlaceHolder="AccountType" />
+                        <label for="ddlAccountType">Account Type</label><asp:DropDownList runat="server" ID="ddlAccountType" />
                     </li>
                     <li>
-                        <asp:TextBox runat="server" ID="tbRoutingNumber" PlaceHolder="RoutingNumber" />
+                        <asp:TextBox runat="server" ID="tbRoutingNumber" placeholder="Routing Number" />
                     </li>
                     <li>
-                        <asp:TextBox runat="server" ID="tbAccountNumber" PlaceHolder="AccountNumber" />
+                        <asp:TextBox runat="server" ID="tbAccountNumber" placeholder="Account Number" />
                     </li>
-                    <li>Add check image...</li>
+                    <li><asp:Image runat="server" ID="imgCheckImage" /></li>
                 </ul>
             </fieldset>
             <div class="buttonset">
@@ -113,7 +103,7 @@
             </div>
         </li>
         <li>
-            <asp:PlaceHolder runat="server" ID="phVerification" class="verification" />
+            <asp:PlaceHolder runat="server" ID="phVerification" />
             <asp:Button runat="server" ID="btnSubmit" Text="Submit" />
         </li>
     </ul>
