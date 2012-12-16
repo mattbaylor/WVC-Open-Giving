@@ -25,41 +25,107 @@ jQuery.noConflict();
 		maskNumber = function (str) {
 			return str.substring(0, str.length - 4).replace(/./gi, 'x') + str.substring(str.length - 4);
 		},
-		showVerification = function () {
-			// TODO: Figure out fund selection?
-			var fields = {
-				firstName: $('[id$="tbFirstName"]').val(),
-				lastName: $('[id$="tbLastName"]').val(),
-				email: $('[id$="tbEmail"]').val(),
-				phone: $('[id$="tbPhone"]').val(),
-				address1: $('[id$="tbAddress1"]').val(),
-				city: $('[id$="tbCity"]').val(),
-				state: $('[id$="tbState"]').val(),
-				zip: $('[id$="tbZip"]').val(),
-				comment: $('[id$="tbComment"]').val(),
-				paymentMethod: $('[id$="rblPaymentMethod"]:checked').text(),	// TODO: Make sure this grabs the text value of the radio button
-				ccNumber: maskNumber($('input[id$="tbCCNumber"]').val()),
-				expDate: $('[id$="ddlExpMonth"]').val() + '/' + $('[id$="ddlExpYear"]').val(),
-				cvv: $('[id$="tbCCCIN"]').val(),
-				bankName: $('[id$="tbBankName"]').val(),
-				accountType: $('[id$="rblAccountType"]:checked').text(),		// TODO: Make sure this grabs the text value of the radio button
-				routingNumber: $('[id$="tbRoutingNumber"]').val(),
-				accountNumber: maskNumber($('[id$="tbAccountNumber"]').val())
-			};
-
-			$.get('UserControls/Custom/WVC/WvcPaymentWizard/templates/verification.html', function (text) {
-				// Handlebars.compile() returns a function. Call it and pass in our data...
-				var html = Handlebars.compile(text)(fields);
-				$('.verification').empty().append(html);
-			});
-		},
+        validateFields = function () {
+            var valid = true;
+            $('#personalInformation input').each(function(){
+                if($(this).val().length == 0) {
+                    $(this).addClass('tbError');
+                    valid = false;
+                }
+                if($(this).attr('id').indexOf('tbEmail') != -1){
+                    if(!validateEmail($(this).val())){
+                        $(this).addClass('tbError');
+                        valid = false;
+                    }
+                }
+            });
+            if(($('input[id$="hfTotalContribution"]').val().length == 0)||$('input[id$="hfTotalContribution"]').val() == 0) {
+                $('input[id$="tbTotalContribution"]').addClass('tbError');
+                valid = false;
+            }
+            if($('input[name$="rblPaymentMethod"]:checked').val() == "CC"){
+                $('#CC input').each(function(){
+                    if($(this).val().length == 0) {
+                        $(this).addClass('tbError');
+                        valid = false;
+                    }
+                    if($(this).attr('id').indexOf('tbCCNumber') != -1){
+                        if(!validateCreditCard($(this).val(),allowedCC)){
+                            $(this).addClass('tbError');
+                            $('.requiredNote').html(function(index, oldhtml){
+                                return(oldhtml + "<br>We cannot accept this type of credit card. We accept the following cards: " + allowedCC);
+                            });
+                            valid = false;
+                        }
+                    }
+                });
+                $('#CC select').each(function(){
+                    if(($(this).attr('id').indexOf('ddlExpMonth') != -1) || ($(this).attr('id').indexOf('ddlExpYear') != -1)){
+                        var ExpDate = new Date($('select[id$="ddlExpYear"]').val(),$('select[id$="ddlExpMonth"]').val()-1,30);
+                        var curDate = new Date();
+                        if(ExpDate.getTime() < curDate.getTime()){
+                            valid = false;
+                            $('select[id$="ddlExpMonth"]').addClass('tbError');
+                            $('select[id$="ddlExpYear"]').addClass('tbError');
+                        }
+                    }
+                });    
+            } else {
+                $('#Bank input').each(function(){
+                    if($(this).val().length == 0) {
+                        $(this).addClass('tbError');
+                        valid = false;
+                    }
+                });
+            }
+            return valid;
+        },
+        validateEmail = function(emailAddress) {
+            var pattern = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
+            return emailAddress.match(pattern);
+        },
 		initPanels = function () {
-			$('.givingWizard > ul .next').live('click', function () {
+            
+            $('.back').click(function () {
+                if($('input[id$="hfTracker"]').val() > 0){
+                    $('input[id$="hfTracker"]').val($('input[id$="hfTracker"]').val()-1);
+                }
+                setActivePanel();
+            });
+			$('.nextButton').live('click', function () {
 				// TODO: Validate form fields before proceeding...
-				$('.givingWizard > ul').animate({ left: '+=' + $(this).parent().parent().outerWidth() });
-				return false;
+
+				//$('.givingWizard > ul').animate({ left: '+=' + $(this).parent().parent().outerWidth() });
+                if(validateFields()) {
+                    return true;
+                } else {
+                    $('.requiredNote').show();
+
+                    return false;
+                }  
 			});
 
+            $('input[id$="tbCCNumber"]').keypress(function(){
+                var type = getCreditCardType($(this).val());
+                $('.cardImage').css("background-image","url(\"UserControls/Custom/WVC/WVC-Open-Giving/img/"+type+".png\")");
+            });
+
+            $('input').change(function(){
+                $(this).removeClass('tbError');
+                $('input[id$="tbTotalContribution"]').removeClass('tbError');
+            });
+
+            $('select').change(function(){
+                $('select[id$="ddlExpMonth"]').removeClass('tbError');
+                $('select[id$="ddlExpYear"]').removeClass('tbError');
+            });
+
+            $('input[id$="hfErrorMessage"]').change(function() {
+                $('.requiredNote').html(function(index, oldhtml){
+                    return(oldhtml + "<br>" + $('input[id$="hfErrorMessage"]').html());
+                });
+                $('.requiredNote').show();
+            });
 			$('.givingWizard > ul .back').live('click', function () {
 				$('.givingWizard > ul').animate({ left: '-=' + $(this).parent().parent().outerWidth() });
 				return false;
@@ -69,7 +135,74 @@ jQuery.noConflict();
 				showVerification();
 				return false;
 			});
-		};
+
+            $('input[id$=btnGiveNow]').click(function() {
+                $('input[id$="hfTracker"]').val(1);
+                setActivePanel();
+            });
+
+            $('input[id$=btnChooseLogin]').click(function() {
+                $('#wizStep1').hide();
+                $('#wizStep2').show();
+            });
+
+            $('input[id$="btnLogin"]').click(function() {
+                var pseudoForm = $('<form method="post" action="' + $('input[id$="hfLoginLocation"]').val() + '"><input type="hidden" name="ctl04$ctl01$txtLoginId" value="' + $('input[id$="tbLogin"]').val() + '" /><input type="hidden" name="ctl04$ctl01$txtPassword" value="' + $('input[id$="tbPassword"]').val() + '" /></form>');
+                $('body').append(pseudoForm);
+                $(pseudoForm).submit();
+            });
+
+            $('#Bank').hide();
+            $('#rblPaymentMethodCC').click(function() {
+                $('#Bank').hide();
+                $('#CC').show();
+            });
+            $('#rblPaymentMethodACH').click(function() {
+                $('#CC').hide();
+                $('#Bank').show();
+            });
+
+		},
+        
+        calcAmounts = function(){
+            $('.fundAmount').change(function () {
+                var tot = 0;
+                $('.fundAmount').each(function(){
+                    if($(this).val().length > 0) {
+                        tot += parseFloat($(this).val());
+                    }
+                });
+                $('input[id$="tbTotalContribution"]').val(tot.toString());
+                $('input[id$="hfTotalContribution"]').val(tot.toString());
+            });
+        },
+        
+        setActivePanel = function(){
+            $('.wizardStep').each(function (index, domEle) {
+                $(domEle).hide();
+            });
+
+            switch ($('input[id$="hfTracker"]').val()) {
+                case "2":
+                    var source = $("#datatable-template").html();
+		            var template = Handlebars.compile(source);
+                    $('#personalInformationConf').html(template(personData));
+		            $('#giftInformationConf').html(template(giftData));
+		            $('#paymentInformationConf').html(template(paymentData));
+                    $('#wizStep4').show();
+                    break;
+                case "3":
+                    $('#wizStep5').show();
+                    break;
+                case "1":
+                    $('#wizStep3').show();
+                    break;
+                case "0":
+                default:
+                    $('#wizStep1').show();
+                    break;
+            }
+        };
 
 	$(function () {
 		if (!Modernizr.input.placeholder) {
@@ -77,5 +210,7 @@ jQuery.noConflict();
 		}
 
 		initPanels();
+        setActivePanel();
+        calcAmounts();
 	});
 }(jQuery));

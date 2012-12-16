@@ -1,16 +1,170 @@
-.givingWizard {
+.givingWizard, .wizardStep {
 	display: block;
 	position: relative;
+	width: 100%;
+	height: 100%;
 }
 
-	.givingWizard > ul {
+    .givingWizard > ul, .wizardStep > ul, .wizardStep > fieldset > ul, .wizardStep > fieldset > ul > li > ul {
 		display: block;
-		position: absolute;
 		top: 0px;
 		left: 0px;
+		padding: 0px;
+		height: 100%;
+		width: 100%;
+		overflow: hidden;
 	}
 
-		.givingWizard > ul > li {
+		.givingWizard > ul > li, .wizardStep > ul > li, .wizardStep > fieldset > ul > li, .wizardStep > fieldset > ul > li > ul > li {
 			display: inline-block;
 			position: relative;
 		}
+
+img[id$="imgCheckImage"] {
+    width: 175px;
+    overflow:hidden;
+}
+
+.fundAmount {
+    width: 55px;
+    text-align: right;
+}
+
+.fundSelector {
+    width: 100px;
+}
+
+input[id$=tbTotalContribution] {
+    width:55px;
+    text-align:right;
+}
+
+#contributionTotal {
+    float: right;
+}
+		
+input {
+    margin: 2px;
+}
+		
+input[id$="btnGiveNow"] {
+    float: right;
+    margin-left: 40px;
+}
+
+input[id$="btnChooseLogin"] {
+    float: left;
+    clear: left;
+    margin-right: 40px;
+}
+
+#wizStep1 > ul > li {
+    display: block;
+    width: 400px;
+    margin: 25px auto 0;
+}
+
+#wizStep2 > fieldset {
+    width: 400px;
+}
+
+#wizStep2 > fieldset > ul > li {
+    display:table-row;
+}
+
+#wizStep3 > fieldset > ul > li {
+    display:table-row;   
+}
+
+#personalInformation {
+    width: 175px;
+    float: left;
+    height: 250px; 
+}
+
+#giftInformation {
+    float: left;
+    width: 175px;
+    height: 250px;
+}
+
+#paymentInformation {
+    float: left;
+    width: 215px;
+    height: 250px;
+}
+
+#confirmation {
+    float: left;
+    height: 250px;
+}
+
+table[id$="rblPaymentMethod"] {
+    display:table-cell;
+}
+
+.buttonsetWrapper { 
+    float: left;
+    height: 270px;
+    position: relative;
+    width: 100px; 
+}
+
+.buttonset {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+#contentTable {
+    width: 100%;
+}
+
+#mainCell 
+{
+    width: 100%;
+}
+.confirmationWrapper {
+	width: 100%;	
+}
+.confirmationData {
+	padding: 0px;
+	border:none;
+}
+.label {
+	border-right: black thin solid;
+	padding: 0 5px 0 0;
+	vertical-align: top;
+}
+.data {
+	padding: 0 0 0 5px;	
+}
+#personalInformationConf {
+	float: left;	
+}
+#giftInformationConf {
+	float: left;
+	padding: 0 20px 0 20px;	
+}
+#paymentInformationConf {
+	float: left;	
+}
+
+.requiredNote {
+    color: Red;
+    display: none;
+}
+
+.instructions {
+    font-size:smaller;
+}
+
+.tbError {
+    border: medium groove red;
+}
+
+.cardImage {
+    height: 80px;
+    margin: 20px 0 0 37px;
+    width: 130px;
+}

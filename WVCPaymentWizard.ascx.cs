@@ -13,17 +13,43 @@
     using System;
     using System.Collections.Generic;
     using System.Text;
+    using System.Linq;
     using System.Web.Profile;
     using System.Web.UI;
     using System.Web.UI.HtmlControls;
     using System.Web.UI.WebControls;
     using ArenaWeb.UserControls.Contributions;
 
+
     public partial class WVCPaymentWizard : PortalControl
     {
 
         [TextSetting("Fund List", "By default all active funds with an online name will be available.  You can override this default list of funds by specifying a comma-delimited list of specific fund IDs here.", false)]
         public string FundListSetting { get { return base.Setting("FundList", "", false); } }
+
+        [TextSetting("Allowed CC", "List of Allowable Credit Cards. Should be a list of the following possibilities: AmEx, Cirrus, DinersClub, Discover, JCB, Maestro, MasterCards, Solo, Switch, Visa, Defaults to : Visa,MasterCard,Discover. Please note that Capitalization matters.", false)]
+        public string AllowedCCSetting { get { return base.Setting("AllowedCC", "Visa,MasterCard,Discover", false); } }
+
+        [TextSetting("Default Fund 1", "Preselected fund for the first fund dropdown", false)]
+        public string DefaultFund1Setting { get { return base.Setting("DefaultFund1", "", false); } }
+
+        [TextSetting("Default Fund 2", "Preselected fund for the second fund dropdown", false)]
+        public string DefaultFund2Setting { get { return base.Setting("DefaultFund2", "", false); } }
+
+        [TextSetting("Default Area Code", "Area code to use if user only gives 7 digits.", false)]
+        public string DefaultAreaCodeSetting { get { return base.Setting("DefaultAreaCode", "", false); } }
+
+        [TextSetting("Give Now Text", "Give Now Button Text.", false)]
+        public string GiveNowTextSetting { get { return base.Setting("GiveNowText", "Give Now", false); } }
+
+        [TextSetting("Forgot Login URL", "URL for the forgot Login Page", false)]
+        public string ForgotLoginSetting { get { return base.Setting("ForgotLoginURL", "", false); } }
+
+        [TextSetting("Forgot Password URL", "URL for the forgot Password Page", false)]
+        public string ForgotPasswordSetting { get { return base.Setting("ForgotPasswordURL", "", false); } }
+
+        [TextSetting("Choose Login Text", "Choose Login Button Text.", false)]
+        public string ChooseLoginTextSetting { get { return base.Setting("ChooseLoginText", "Use MyWVC", false); } }
 
         [TextSetting("Check Image URL", "URL for a check image that shows how to locate the routing number and account number from a blank check", false)]
         public string CheckImageURLSetting { get { return base.Setting("CheckImageURL", "", false); } }
@@ -48,11 +74,17 @@
 
         [LookupSetting("New Person Status", "The member status given to new persons added through this module.", true, "0b4532db-3188-40f5-b188-e7e6e4448c85")]
         public int NewPersonStatusSetting { get { return Convert.ToInt32(Setting("NewPersonStatus", "", true)); } }
+
+        [PageSetting("Login Page", "The page that the username and password should be posted against", false)]
+        public string LoginPageSetting { get { return base.Setting("LoginPage", "", false); } }
         
 
         private GatewayAccount ccGatewayAcct = null;
         private GatewayAccount achGatewayAcct = null;
         private RepeatingPayment _repeatingPayment;
+        private PersonAddress currentAddress = null;
+        private ContributionFundCollection SelectedFunds = new ContributionFundCollection();
+        private FundCollection AvailableFunds = new FundCollection();
 
         private Person _person;
         private bool _validateCardNumber = true;
@@ -61,35 +93,175 @@
 
         public string ConfirmationNumber;
 
+        protected void Page_Init(object sender, EventArgs e)
+        {
+            HtmlGenericControl oDesktopJS = new HtmlGenericControl("script");
+            oDesktopJS.Attributes.Add("type", "text/javascript");
+            oDesktopJS.Attributes.Add("src", "https://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js");
+            Page.Header.Controls.Add(oDesktopJS);
+
+            HtmlGenericControl oDesktopJS1 = new HtmlGenericControl("script");
+            oDesktopJS1.Attributes.Add("type", "text/javascript");
+            oDesktopJS1.Attributes.Add("src", ResolveUrl("js/vendor/handlebars.min.js"));
+            Page.Header.Controls.Add(oDesktopJS1);
+
+            HtmlGenericControl oDesktopJS2 = new HtmlGenericControl("script");
+            oDesktopJS2.Attributes.Add("type", "text/javascript");
+            oDesktopJS2.Attributes.Add("src", ResolveUrl("js/vendor/modernizr.min.js"));
+            Page.Header.Controls.Add(oDesktopJS2);
+
+            HtmlGenericControl oDesktopJS3 = new HtmlGenericControl("script");
+            oDesktopJS3.Attributes.Add("type", "text/javascript");
+            oDesktopJS3.Attributes.Add("src", ResolveUrl("js/app.js"));
+            Page.Header.Controls.Add(oDesktopJS3);
+
+            HtmlGenericControl oDesktopJS4 = new HtmlGenericControl("script");
+            oDesktopJS4.Attributes.Add("type", "text/javascript");
+            oDesktopJS4.Attributes.Add("src", ResolveUrl("js/cc.js"));
+            Page.Header.Controls.Add(oDesktopJS4);
+
+            StringBuilder aCCList = new StringBuilder();
+            aCCList.Append("var allowedCC = \"");
+            aCCList.Append(AllowedCCSetting);
+            aCCList.Append("\";");
+
+
+
+            HtmlGenericControl AllowedCCList = new HtmlGenericControl("script")
+            {
+                InnerHtml = aCCList.ToString()
+            };
+            AllowedCCList.Attributes.Add("type", "text/javascript");
+            AllowedCCList.Attributes.Add("id", "AllowedCardList");
+            Page.Header.Controls.Add(AllowedCCList);
+        }
+
         protected void Page_Load(object Object, EventArgs e)
         {
+            Page.Header.Controls.Add(
+                new LiteralControl("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + ResolveUrl("css/style.css") + "\" />"));
+
             if (!IsPostBack)
             {
                 PopulateStaticControls();
-                this.fundAmountsControl.OrganizationID = base.CurrentOrganization.OrganizationID;
-                this.fundAmountsControl.MinimumAmount = this.MinimumGivingAmountSetting;
-                this.fundAmountsControl.MaximumAmount = this.MaximumGivingAmountSetting;
-                this.fundAmountsControl.FundList = this.FundListSetting;
                 this.imgCheckImage.ImageUrl = this.CheckImageURLSetting;
                 this.tbComment.Attributes["placeholder"] = this.CommentCaptionSetting;
+                this.hfTracker.Value = "0";
+                this.btnChooseLogin.Value = this.ChooseLoginTextSetting;
+                this.btnGiveNow.Value = this.GiveNowTextSetting;
+                this.hfLoginLocation.Value = Page.ResolveUrl("default.aspx?page="+this.LoginPageSetting.ToString()).ToString();
+                this.forgotLogin.NavigateUrl = this.ForgotLoginSetting;
+                this.forgotPassword.NavigateUrl = this.ForgotPasswordSetting;
+                    
             }
             else
             {
-                //assuming all data is correct
-                int iPersonId = GetPersonIdFromInputData();
-                if (iPersonId != 0)
+                switch(hfTracker.Value)
                 {
-                    Person person = new Person(iPersonId);
-                    this._person = new Person(iPersonId);
+                    case "1":
+                        //assuming all data is correct
+                        int iPersonId = GetPersonIdFromInputData();
+                        if (iPersonId != 0)
+                        {
+                            Person person = new Person(iPersonId);
+                            this._person = new Person(iPersonId);
+                            this.SelectedFunds = GetSelectedFundCollection();
+                            if (this.SubmitPreAuthorization())
+                            {
+                                this.buildConfirmationScreen(person);
+                                this.hfTracker.Value = "2";
+                            }
+                            else 
+                            { 
+                                return; 
+                            }
+                        }
+                        else
+                        {
+                            return;
+                        }
+                        break;
+                    case "2":
+                        if (this.SubmitTransaction())
+                        {
+                            this.buildThankYou();
+                            this.hfTracker.Value = "3";
+                        }
+                        else
+                        { 
+                            return; 
+                        }
+                        break;
                 }
-                this.SubmitTransaction();
-
             }
+        }
+
+        protected void buildConfirmationScreen(Person person)
+        {
+            HtmlGenericControl template = new HtmlGenericControl("script")
+            {
+                InnerHtml = "<table cellpadding=\"0\" cellspacing=\"0\" class=\"confirmationData\">{{#each info}}<tr><td class=\"label\">{{label}}</td><td class=\"data\">{{{data}}}&nbsp;</td></tr>{{/each}}</table>"
+            };
+            template.Attributes.Add("type", "text/x-handlebars-template");
+            template.Attributes.Add("id", "datatable-template");
+            Page.Header.Controls.Add(template);
+
+
+            StringBuilder confData = new StringBuilder();
+
+            confData.Append("var personData={ info: [");
+            confData.Append("{label:\"Name\",data:\"" + person.FullName + "\"},");
+            confData.Append("{label:\"Email Address\",data:\"" + person.Emails.FirstActive + "\"},");
+            confData.Append("{label:\"Phone\",data:\"" + person.Phones.FindByType(276) + "\"},");
+            confData.Append("{label:\"Address\",data:\"" + this.currentAddress.Address.StreetLine1 + "<br>" + this.currentAddress.Address.City + ", " + this.currentAddress.Address.State + "<br>" + this.currentAddress.Address.PostalCode + "\"},");
+            confData.Append("{label:\"Country\",data:\"" + this.currentAddress.Address.Country + "\"}");
+            confData.Append("]};");
+
+            confData.AppendLine();
+            confData.Append("var giftData={ info: [");
+
+            foreach (ContributionFund contribFund in this.SelectedFunds) {
+                Fund curFund = new Fund(Convert.ToInt16(contribFund.FundId));
+                confData.Append("{label:\"" + curFund.OnlineName + "\",data:\"" + String.Format("{0:C}", contribFund.Amount) + "\"},");
+            }
+            confData.Append("{label:\"\",data:\"\"},");
+            confData.Append("{label:\"Total\",data:\"" + String.Format("{0:C}", Convert.ToDecimal(hfTotalContribution.Value)).ToString() + "\"},");
+            confData.Append("{label:\"Memo\",data:\"" + tbComment.Text + "\"}");
+            confData.Append("]};");
+
+            confData.Append("var paymentData={ info: [");
+            confData.Append("{label:\"Payment Data\",data:\"" + rblPaymentMethod.SelectedItem.Text + "\"},");
+            confData.Append("{label:\"Account Number\",data:\"" + MaskAccountNumber(tbAccountNumber.Text) + MaskAccountNumber(tbCCNumber.Text) + "\"},");
+            if (tbRoutingNumber.Text.Length > 0)
+            {
+                confData.Append("{label:\"Bank Name\",data:\"" + tbBankName.Text + "\"},");
+                confData.Append("{label:\"Routing Number\",data:\"" + tbRoutingNumber.Text + "\"}");
+            }
+            if (tbCCNumber.Text.Length > 0)
+            {
+                confData.Append("{label:\"Expiration Date\",data:\"" + ddlExpMonth.SelectedValue + "/" + ddlExpYear.SelectedValue + "\"}");
+            }
+            confData.Append("]};");
+
+            HtmlGenericControl templateData = new HtmlGenericControl("script")
+            {
+                InnerHtml = confData.ToString()
+            };
+
+            templateData.Attributes.Add("type", "text/javascript");
+            Page.Header.Controls.Add(templateData);
+            return;
+        }
+
+        protected void buildThankYou()
+        {
+
+
         }
 
         protected void PopulateStaticControls()
         {
-            for (int month = 0; month <= 12; month++)
+            for (int month = 1; month <= 12; month++)
             {
                 ddlExpMonth.Items.Add(new ListItem(string.Format("{0:00}", month), month.ToString()));
             }
@@ -100,6 +272,32 @@
             }
             ddlAccountType.Items.Add(new ListItem("Checking", "Checking"));
             ddlAccountType.Items.Add(new ListItem("Savings", "Savings"));
+            ddlSelectedFund1.Items.Add(new ListItem());
+            ddlSelectedFund2.Items.Add(new ListItem());
+            ddlSelectedFund3.Items.Add(new ListItem());
+
+            
+
+            string[] selectedFunds = this.FundListSetting.Split(',').Select(sValue => sValue.Trim()).ToArray();
+            foreach (string item in selectedFunds)
+            {
+                Fund curFund = new Fund(Convert.ToInt16(item));
+                ddlSelectedFund1.Items.Add(new ListItem(curFund.OnlineName,item));
+                ddlSelectedFund2.Items.Add(new ListItem(curFund.OnlineName, item));
+                ddlSelectedFund3.Items.Add(new ListItem(curFund.OnlineName, item));
+                this.AvailableFunds.Add(curFund);
+                               
+                if (item == DefaultFund1Setting)
+                {
+                    ddlSelectedFund1.SelectedValue = item; 
+                }
+
+                if (item == DefaultFund2Setting)
+                {
+                    ddlSelectedFund2.SelectedValue = item;
+                }
+            }
+
         }
 
         protected int GetPersonIdFromInputData()
@@ -124,6 +322,7 @@
                 if ((phoneSearch.PersonID == person.PersonID) && (person.LastName.ToLower() == sLastName.ToLower()))
                 {
                     iFoundPersonId = person.PersonID;
+                    this.currentAddress = person.Addresses.FindByType(41);
                 }
             }
 
@@ -176,6 +375,7 @@
                 personAddress.Address.PostalCode = sZip;
                 personAddress.AddressType = new Lookup(41);
                 personAddress.Address.Standardize();
+                this.currentAddress = personAddress;
                 familyMember.Addresses.Add(personAddress);
 
                 //add phone to db and person to phone
@@ -257,7 +457,7 @@
         //Stub for error messaging
         private void DisplayError(string errorMes)
         {
-
+            this.hfErrorMessage.Value = errorMes;
         }
 
         private void DisplayError(string header, List<string> errorMsgs)
@@ -276,43 +476,72 @@
         private ContributionFundCollection GetSelectedFundCollection()
         {
             ContributionFundCollection contributionFundCollection = new ContributionFundCollection();
-            foreach (FundAmount current in this.fundAmountsControl.SelectedFundAmounts)
+            for (int i = 1; i <= 3; i++)
             {
-                contributionFundCollection.Add(new ContributionFund
+                DropDownList curDrop = (DropDownList)FindControlRecursive(Page, "ddlSelectedFund" + i.ToString());
+                TextBox curAmount = (TextBox)FindControlRecursive(Page, "tbSelectedFund" + i.ToString() + "Amount");
+                if ((curDrop.SelectedValue.Length > 0) && (curAmount.Text.Length > 0))
                 {
-                    FundId = current.FundId,
-                    Amount = current.Amount
-                });
+                    contributionFundCollection.Add(new ContributionFund
+                    {
+                        FundId = Convert.ToInt16(curDrop.SelectedValue),
+                        Amount = Convert.ToDecimal(curAmount.Text)
+                    });
+                }
             }
+           
             return contributionFundCollection;
         }
 
-        private bool IsPaymentInformationValid(string sPaymentType)
+        private bool SubmitPreAuthorization()
         {
-            if (sPaymentType == "Credit Card")
+            try
             {
-                if (this.rfvCCNumber.IsValid && this.rfvCCCIN.IsValid && this.rfvExpMonth.IsValid && this.rfvExpYear.IsValid)
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                if (this.rfvBankName.IsValid && this.rfvRoutingNumber.IsValid && this.rfvAccountNumber.IsValid)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
 
+                decimal totalAmount = Convert.ToDecimal(this.hfTotalContribution.Value);
+                    GatewayAccount gatewayAccount;
+                    if (rblPaymentMethod.SelectedValue == "CC")
+                    {
+                        gatewayAccount = this.ccGatewayAcct;
+                    }
+                    else
+                    {
+                        gatewayAccount = this.achGatewayAcct;
+                    }
+                    Processor processorClass = Processor.GetProcessorClass(gatewayAccount.PaymentProcessor);
+                    if (processorClass != null && processorClass.TransactionTypeSupported(TransactionType.PreAuth))
+                    {
+                        bool flag;
+                        if (rblPaymentMethod.SelectedValue == "CC")
+                        {
+                            flag = gatewayAccount.Authorize(TransactionType.PreAuth, this.tbCCNumber.Text, this.tbCCCIN.Text, this.ddlExpMonth.SelectedValue, this.ddlExpYear.SelectedValue, -1, this._person.PersonID, this.tbFirstName.Text, this.tbFirstName.Text, this.tbLastName.Text, this.tbAddress1.Text, this.tbCity.Text, this.tbState.Text, this.tbZip.Text, this.tbPhone.Text, this.tbEmail.Text, totalAmount, "", DateTime.MinValue, PaymentFrequency.Unknown, 0, this._validateCardNumber);
+                        }
+                        else
+                        {
+                            flag = gatewayAccount.AuthorizeACH(TransactionType.PreAuth, this.tbAccountNumber.Text.Trim(), this.tbRoutingNumber.Text.Trim(), this.ddlAccountType.Items[0].Selected, this._person.PersonID, this.tbFirstName.Text.Trim(), this.tbFirstName.Text.Trim(), this.tbLastName.Text.Trim(), this.tbAddress1.Text.Trim(), this.tbCity.Text.Trim(), this.tbState.Text.Trim(), this.tbZip.Text.Trim(), this.tbPhone.Text.Trim(), this.tbEmail.Text.Trim(), totalAmount, "", DateTime.MinValue, PaymentFrequency.Unknown, 0);
+                        }
+                        if (!flag)
+                        {
+                            this.DisplayError("Authorization of your information failed for the following reason(s):", gatewayAccount.Messages);
+                            return false;
+                        }
+                    }
+                
+            }
+            catch (Exception inner)
+            {
+                throw new ArenaApplicationException("Error occurred during preauthorization", inner);
+            }
+            return true;
+        }
+        
         private bool SubmitTransaction()
         {
             try
             {
                 bool flag = this._repeatingPayment != null && this._repeatingPayment.RepeatingPaymentId != -1;
                 ContributionFundCollection selectedFundCollection = this.GetSelectedFundCollection();
-                decimal totalAmount = this.fundAmountsControl.TotalAmount;
+                decimal totalAmount = Convert.ToDecimal(this.hfTotalContribution.Value);
                 bool result;
                 if (selectedFundCollection.TotalFundAmount != totalAmount)
                 {
@@ -344,7 +573,7 @@
                 }
                 else
                 {
-                    if (this.rblPaymentMethod.SelectedValue == "Credit Card")
+                    if (rblPaymentMethod.SelectedValue == "CC")
                     {
                         gatewayAccount = this.ccGatewayAcct;
                         accountNumber = this.MaskAccountNumber(this.tbCCNumber.Text);
@@ -355,7 +584,6 @@
                         accountNumber = this.MaskAccountNumber(this.tbAccountNumber.Text);
                     }
                 }
-                int numberOfPayments = 0;
 
                 Transaction transaction = null;
                 if (gatewayAccount.RequiresPaymentGateway)
@@ -370,7 +598,7 @@
                 }
                 else
                 {
-                    if (this.rblPaymentMethod.SelectedValue == "Credit Card")
+                    if (rblPaymentMethod.SelectedValue == "CC")
                     {
                         if (gatewayAccount.Authorize(TransactionType.Sale, this.tbCCNumber.Text, this.tbCCCIN.Text, this.ddlExpMonth.SelectedValue, this.ddlExpYear.SelectedValue, -1, this._person.PersonID, this.tbFirstName.Text.Trim(), this.tbFirstName.Text.Trim(), this.tbLastName.Text.Trim(), this.tbAddress1.Text, this.tbCity.Text, this.tbState.Text, this.tbZip.Text.Trim(), this.tbPhone.Text.Trim(), this.tbEmail.Text.Trim(), totalAmount, stringBuilder.ToString(), DateTime.MinValue, PaymentFrequency.One_Time, 0, this._validateCardNumber))
                         {
@@ -379,7 +607,7 @@
                     }
                     else
                     {
-                        if (gatewayAccount.AuthorizeACH(TransactionType.Sale, this.tbAccountNumber.Text.Trim(), this.tbRoutingNumber.Text.Trim(), this.rblAccountType.Items[0].Selected, this._person.PersonID, this.tbFirstName.Text.Trim(), this.tbFirstName.Text.Trim(), this.tbLastName.Text.Trim(), this.tbAddress1.Text.Trim(), this.tbCity.Text.Trim(), this.tbState.Text.Trim(), this.tbZip.Text.Trim(), this.tbPhone.Text.Trim(), this.tbEmail.Text.Trim(), totalAmount, stringBuilder.ToString(), DateTime.MinValue, PaymentFrequency.One_Time, 0))
+                        if (gatewayAccount.AuthorizeACH(TransactionType.Sale, this.tbAccountNumber.Text.Trim(), this.tbRoutingNumber.Text.Trim(), ddlAccountType.Items[0].Selected, this._person.PersonID, this.tbFirstName.Text.Trim(), this.tbFirstName.Text.Trim(), this.tbLastName.Text.Trim(), this.tbAddress1.Text.Trim(), this.tbCity.Text.Trim(), this.tbState.Text.Trim(), this.tbZip.Text.Trim(), this.tbPhone.Text.Trim(), this.tbEmail.Text.Trim(), totalAmount, stringBuilder.ToString(), DateTime.MinValue, PaymentFrequency.One_Time, 0))
                         {
                             transaction = gatewayAccount.Transaction;
                         }
