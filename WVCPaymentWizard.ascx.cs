@@ -166,6 +166,7 @@
                             Person person = new Person(iPersonId);
                             this._person = new Person(iPersonId);
                             this.SelectedFunds = GetSelectedFundCollection();
+                            this.LoadGateways();
                             if (this.SubmitPreAuthorization())
                             {
                                 this.buildConfirmationScreen(person);
