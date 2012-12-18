@@ -89,6 +89,7 @@
         private ContributionFundCollection SelectedFunds = new ContributionFundCollection();
         private String SelectedFundsSerialized = "";
         private FundCollection AvailableFunds = new FundCollection();
+        private Transaction curTrans = null;
 
         private Person _person;
         private bool _validateCardNumber = true;
@@ -272,8 +273,32 @@
 
         protected void buildThankYou()
         {
+            HtmlGenericControl template = new HtmlGenericControl("script")
+            {
+                InnerHtml = "<table cellpadding=\"0\" cellspacing=\"0\" class=\"confirmationData\">{{#each info}}<tr><td class=\"label\">{{label}}</td><td class=\"data\">{{{data}}}&nbsp;</td></tr>{{/each}}</table>"
+            };
+            template.Attributes.Add("type", "text/x-handlebars-template");
+            template.Attributes.Add("id", "datatable-template");
+            Page.Header.Controls.Add(template);
 
 
+            StringBuilder confData = new StringBuilder();
+
+            confData.Append("var transData={ info: [");
+            confData.Append("{label:\"Transaction Date\",data:\"" + this.curTrans.TransactionDate + "\"},");
+            confData.Append("{label:\"Transaction Amount\",data:\"" + this.curTrans.TransactionAmount + "\"},");
+            confData.Append("{label:\"Transaction ID\",data:\"" + this.curTrans.TransactionId + "\"},");
+            confData.Append("{label:\"Transaction Details\",data:\"" + this.curTrans.TransactionDetail + "\"},");
+            confData.Append("]};");
+
+            HtmlGenericControl templateData = new HtmlGenericControl("script")
+            {
+                InnerHtml = confData.ToString()
+            };
+
+            templateData.Attributes.Add("type", "text/javascript");
+            Page.Header.Controls.Add(templateData);
+            return;
         }
 
         public string SerializeToString(object obj, Type objType)
@@ -285,16 +310,6 @@
                 StreamReader reader = new StreamReader(ms);
                 return reader.ReadToEnd();
             }
-            
-            /* Old XML Serializer
-             * XmlSerializer serializer = new XmlSerializer(obj.GetType());
-
-            using (StringWriter writer = new StringWriter())
-            {
-                serializer.Serialize(writer, obj);
-
-                return writer.ToString();
-            }*/
         }
 
         protected void PopulateStaticControls()
@@ -359,8 +374,11 @@
                 
                 if ((phoneSearch.PersonID == person.PersonID) && (person.LastName.ToLower() == sLastName.ToLower()))
                 {
-                    iFoundPersonId = person.PersonID;
                     this.currentAddress = person.Addresses.FindByType(41);
+                    if(this.currentAddress.Address.PostalCode.Substring(0,4) == sZip ) 
+                    {
+                        iFoundPersonId = person.PersonID;
+                    }
                 }
             }
 
@@ -652,6 +670,7 @@
                         result = false;
                         return result;
                     }
+                    this.curTrans = transaction;
                     string str = "Online Giving";
                     if (base.CurrentOrganization.Settings["GivingBatchName"] != null)
                     {
