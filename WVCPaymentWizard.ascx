@@ -38,28 +38,28 @@
                     <div class="instructions">All fields required.</div>
                     <ul>
                         <li>
-                            <asp:TextBox runat="server" ID="tbFirstName" placeholder="First Name" />
+                            <asp:TextBox runat="server" ID="tbFirstName" placeholder="First Name" class="required" />
                         </li>
                         <li>
-                            <asp:TextBox runat="server" ID="tbLastName" placeholder="Last Name" />
+                            <asp:TextBox runat="server" ID="tbLastName" placeholder="Last Name" class="required" />
                         </li>
                         <li>
-                            <asp:TextBox runat="server" ID="tbEmail" placeholder="Email Address" />
+                            <asp:TextBox runat="server" ID="tbEmail" placeholder="Email Address" class="required email" />
                         </li>
                         <li>
-                            <asp:TextBox runat="server" ID="tbPhone" placeholder="Phone Number" class="num" />
+                            <asp:TextBox runat="server" ID="tbPhone" placeholder="Phone Number" class="required phone" />
                         </li>
                         <li>
-                            <asp:TextBox runat="server" ID="tbAddress1" placeholder="Address" />
+                            <asp:TextBox runat="server" ID="tbAddress1" placeholder="Address" class="required" />
                         </li>
                         <li>
-                            <asp:TextBox runat="server" ID="tbCity" placeholder="City" />
+                            <asp:TextBox runat="server" ID="tbCity" placeholder="City" class="required" />
                         </li>
                         <li>
-                            <asp:TextBox runat="server" ID="tbState" placeholder="State" />
+                            <asp:TextBox runat="server" ID="tbState" placeholder="State" class="required" />
                         </li>
                         <li>
-                            <asp:TextBox runat="server" ID="tbZip" placeholder="Zip Code" class="num" />
+                            <asp:TextBox runat="server" ID="tbZip" placeholder="Zip Code" class="required zipcode" />
                         </li>
                     </ul>
                 </fieldset>
@@ -67,13 +67,13 @@
                     <legend>Gift Information</legend>                
                     <ul>
                         <li>
-                            <asp:DropDownList runat="server" ID="ddlSelectedFund1" class="fundSelector" />$<asp:TextBox runat="server" ID="tbSelectedFund1Amount" class="fundAmount num" placeholder="0.00" />
+                            <asp:DropDownList runat="server" ID="ddlSelectedFund1" class="fundSelector" />$<asp:TextBox runat="server" ID="tbSelectedFund1Amount" class="fundAmount dollar" placeholder="0.00" />
                         </li>
                         <li>
-                            <asp:DropDownList runat="server" ID="ddlSelectedFund2" class="fundSelector" />$<asp:TextBox runat="server" ID="tbSelectedFund2Amount" class="fundAmount num" placeholder="0.00" />
+                            <asp:DropDownList runat="server" ID="ddlSelectedFund2" class="fundSelector" />$<asp:TextBox runat="server" ID="tbSelectedFund2Amount" class="fundAmount dollar" placeholder="0.00" />
                         </li>
                         <li>
-                            <asp:DropDownList runat="server" ID="ddlSelectedFund3" class="fundSelector" />$<asp:TextBox runat="server" ID="tbSelectedFund3Amount" class="fundAmount num" placeholder="0.00" />
+                            <asp:DropDownList runat="server" ID="ddlSelectedFund3" class="fundSelector" />$<asp:TextBox runat="server" ID="tbSelectedFund3Amount" class="fundAmount dollar" placeholder="0.00" />
                         </li>
                         <li>
                             Total: <span id="contributionTotal">$<asp:TextBox runat="server" ID="tbTotalContribution" ReadOnly="true" placeholder="0.00" /><asp:HiddenField runat="server" ID="hfTotalContribution" /></span>
