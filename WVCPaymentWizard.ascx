@@ -132,7 +132,7 @@
                 </fieldset></li>
                 <li><div class="buttonsetWrapper">
                     <div class="buttonset">
-                        <a href="#" class="back" title="Back">Back</a>
+                        <input type="button" class="back" value="Back" />
                         <asp:Button runat="server" ID="btnNext" Text="Next" class="nextButton" CausesValidation="false" />
                     </div>
                 </div></li>
@@ -149,7 +149,7 @@
             </fieldset></li>
             <li><div class="buttonsetWrapper">
                 <div class="buttonset">
-                    <a href="#" class="back" title="Back">Back</a>
+                    <input type="button" class="back" value="Back" />
                     <asp:Button runat="server" ID="btnSubmit" Text="Finish" />
                 </div>
             </div></li>
@@ -158,7 +158,7 @@
         <li class="wizardStep" id="wizStep5">
         <ul><li>
             <asp:PlaceHolder runat="server" ID="phThankYou" />
-            <input type="button" id="btnClose" value="Close" /></li></ul>
+            <div class="thankYou" id="thankYou"></div></li></ul>
         </li>
     </ul>
     <div class="requiredNote">

@@ -199,6 +199,7 @@ jQuery.noConflict();
                     break;
                 case "3":
                     $('#wizStep5').show();
+                    $('#thankYou').html(template(transData));
                     break;
                 case "1":
                     $('#wizStep3').show();
