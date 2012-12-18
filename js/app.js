@@ -110,6 +110,12 @@ jQuery.noConflict();
                 $('.cardImage').css("background-image","url(\"UserControls/Custom/WVC/WVC-Open-Giving/img/"+type+".png\")");
             });
 
+            $('.num').keydown(function(event) {
+                if (($(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
+                    event.preventDefault();
+                }
+            });
+
             $('input').change(function(){
                 $(this).removeClass('tbError');
                 $('input[id$="tbTotalContribution"]').removeClass('tbError');
