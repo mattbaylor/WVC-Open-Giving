@@ -38,19 +38,19 @@
                     <div class="instructions">All fields required.</div>
                     <ul>
                         <li>
-                            <asp:TextBox runat="server" ID="tbFirstName" placeholder="First Name"/>
+                            <asp:TextBox runat="server" ID="tbFirstName" placeholder="First Name" />
                         </li>
                         <li>
-                            <asp:TextBox runat="server" ID="tbLastName" placeholder="Last Name"/>
+                            <asp:TextBox runat="server" ID="tbLastName" placeholder="Last Name" />
                         </li>
                         <li>
-                            <asp:TextBox runat="server" ID="tbEmail" placeholder="Email Address"/>
+                            <asp:TextBox runat="server" ID="tbEmail" placeholder="Email Address" />
                         </li>
                         <li>
-                            <asp:TextBox runat="server" ID="tbPhone" placeholder="Phone Number"/>
+                            <asp:TextBox runat="server" ID="tbPhone" placeholder="Phone Number" class="num" />
                         </li>
                         <li>
-                            <asp:TextBox runat="server" ID="tbAddress1" placeholder="Address"/>
+                            <asp:TextBox runat="server" ID="tbAddress1" placeholder="Address" />
                         </li>
                         <li>
                             <asp:TextBox runat="server" ID="tbCity" placeholder="City" />
@@ -59,7 +59,7 @@
                             <asp:TextBox runat="server" ID="tbState" placeholder="State" />
                         </li>
                         <li>
-                            <asp:TextBox runat="server" ID="tbZip" placeholder="Zip Code" />
+                            <asp:TextBox runat="server" ID="tbZip" placeholder="Zip Code" class="num" />
                         </li>
                     </ul>
                 </fieldset>
@@ -67,13 +67,13 @@
                     <legend>Gift Information</legend>                
                     <ul>
                         <li>
-                            <asp:DropDownList runat="server" ID="ddlSelectedFund1" class="fundSelector" />$<asp:TextBox runat="server" ID="tbSelectedFund1Amount" class="fundAmount" placeholder="0.00" />
+                            <asp:DropDownList runat="server" ID="ddlSelectedFund1" class="fundSelector" />$<asp:TextBox runat="server" ID="tbSelectedFund1Amount" class="fundAmount num" placeholder="0.00" />
                         </li>
                         <li>
-                            <asp:DropDownList runat="server" ID="ddlSelectedFund2" class="fundSelector" />$<asp:TextBox runat="server" ID="tbSelectedFund2Amount" class="fundAmount" placeholder="0.00" />
+                            <asp:DropDownList runat="server" ID="ddlSelectedFund2" class="fundSelector" />$<asp:TextBox runat="server" ID="tbSelectedFund2Amount" class="fundAmount num" placeholder="0.00" />
                         </li>
                         <li>
-                            <asp:DropDownList runat="server" ID="ddlSelectedFund3" class="fundSelector" />$<asp:TextBox runat="server" ID="tbSelectedFund3Amount" class="fundAmount" placeholder="0.00" />
+                            <asp:DropDownList runat="server" ID="ddlSelectedFund3" class="fundSelector" />$<asp:TextBox runat="server" ID="tbSelectedFund3Amount" class="fundAmount num" placeholder="0.00" />
                         </li>
                         <li>
                             Total: <span id="contributionTotal">$<asp:TextBox runat="server" ID="tbTotalContribution" ReadOnly="true" placeholder="0.00" /><asp:HiddenField runat="server" ID="hfTotalContribution" /></span>
@@ -95,10 +95,10 @@
                         <li>
                         <ul id="CC">
                         <li>
-                            <asp:TextBox runat="server" ID="tbCCNumber" placeholder="Credit Card" />
+                            <asp:TextBox runat="server" ID="tbCCNumber" placeholder="Credit Card" class="num" />
                         </li>
                         <li>
-                            <asp:TextBox runat="server" ID="tbCCCIN" placeholder="Security Code" />
+                            <asp:TextBox runat="server" ID="tbCCCIN" placeholder="Security Code" class="num" />
                         </li>
                         <li>
                             <label for="expDetails">Expiration</label>
@@ -116,13 +116,13 @@
                             <asp:TextBox runat="server" ID="tbBankName" placeholder="Bank Name" />
                         </li>
                         <li>
-                            <label for="ddlAccountType">Account Type</label><asp:DropDownList runat="server" ID="ddlAccountType" />
+                            <label for="ddlAccountType">Account Type</label><asp:DropDownList runat="server" ID="ddlAccountType" class="num" />
                         </li>
                         <li>
-                            <asp:TextBox runat="server" ID="tbRoutingNumber" placeholder="Routing Number" />
+                            <asp:TextBox runat="server" ID="tbRoutingNumber" placeholder="Routing Number" class="num" />
                         </li>
                         <li>
-                            <asp:TextBox runat="server" ID="tbAccountNumber" placeholder="Account Number" />
+                            <asp:TextBox runat="server" ID="tbAccountNumber" placeholder="Account Number" class="num" />
                         </li>
                         <li><asp:Image runat="server" ID="imgCheckImage" /></li>
                     </ul>
