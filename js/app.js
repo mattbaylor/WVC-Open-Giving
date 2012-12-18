@@ -28,15 +28,9 @@ jQuery.noConflict();
         validateFields = function () {
             var valid = true;
             $('#personalInformation input').each(function(){
-                if($(this).val().length == 0) {
+                if(!$('#frmMain').validate({showErrors:function(errorMap, errorList){return false;}}).element($(this))) {
                     $(this).addClass('tbError');
                     valid = false;
-                }
-                if($(this).attr('id').indexOf('tbEmail') != -1){
-                    if(!validateEmail($(this).val())){
-                        $(this).addClass('tbError');
-                        valid = false;
-                    }
                 }
             });
             if(($('input[id$="hfTotalContribution"]').val().length == 0)||$('input[id$="hfTotalContribution"]').val() == 0) {
@@ -80,11 +74,7 @@ jQuery.noConflict();
             }
             return valid;
         },
-        validateEmail = function(emailAddress) {
-            var pattern = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
-            return emailAddress.match(pattern);
-        },
-		initPanels = function () {
+        initPanels = function () {
             
             $('.back').click(function () {
                 if($('input[id$="hfTracker"]').val() > 0){
@@ -110,9 +100,34 @@ jQuery.noConflict();
                 $('.cardImage').css("background-image","url(\"UserControls/Custom/WVC/WVC-Open-Giving/img/"+type+".png\")");
             });
 
-            $('.num').keydown(function(event) {
-                if (($(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
+            $('.dollar').keydown(function(event) {
+                alert(event.which);
+                if(event.shiftKey){
                     event.preventDefault();
+                    return false;
+                }
+                switch(event.which){
+                    case 48: case 49: case 50: case 51: case 52: case 53: case 54: case 55: case 56: case 57:
+                    case 8: case 9: case 96: case 37: case 39: case 97: case 98: case 99: case 100: case 101: case 102: case 103: case 104: case 105: case 110:
+                        break;
+                    default:
+                        event.preventDefault();
+                        return false;
+                }
+            });
+
+            $('.phone,.zipcode,.num').keydown(function(event) {
+                if(event.shiftKey){
+                    event.preventDefault();
+                    return false;
+                }
+                switch(event.which){
+                    case 48: case 49: case 50: case 51: case 52: case 53: case 54: case 55: case 56: case 57:
+                    case 8: case 9: case 96: case 37: case 39: case 97: case 98: case 99: case 100: case 101: case 102: case 103: case 104: case 105:
+                        break;
+                    default:
+                        event.preventDefault();
+                        return false;
                 }
             });
 

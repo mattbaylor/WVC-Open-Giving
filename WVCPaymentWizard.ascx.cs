@@ -115,6 +115,11 @@
             oDesktopJS2.Attributes.Add("src", ResolveUrl("js/vendor/modernizr.min.js"));
             Page.Header.Controls.Add(oDesktopJS2);
 
+            HtmlGenericControl oDesktopJS5 = new HtmlGenericControl("script");
+            oDesktopJS5.Attributes.Add("type", "text/javascript");
+            oDesktopJS5.Attributes.Add("src", ResolveUrl("js/vendor/jquery.validate.min.js"));
+            Page.Header.Controls.Add(oDesktopJS5);
+
             HtmlGenericControl oDesktopJS3 = new HtmlGenericControl("script");
             oDesktopJS3.Attributes.Add("type", "text/javascript");
             oDesktopJS3.Attributes.Add("src", ResolveUrl("js/app.js"));
