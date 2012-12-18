@@ -5,7 +5,7 @@
 	height: 100%;
 }
 
-    .givingWizard > ul, .wizardStep > ul, .wizardStep > fieldset > ul, .wizardStep > fieldset > ul > li > ul {
+    .givingWizard > ul, .wizardStep > ul, .wizardStep > ul > li > fieldset > ul, .wizardStep > ul > li > fieldset > ul > li > ul {
 		display: block;
 		top: 0px;
 		left: 0px;
@@ -15,7 +15,7 @@
 		overflow: hidden;
 	}
 
-		.givingWizard > ul > li, .wizardStep > ul > li, .wizardStep > fieldset > ul > li, .wizardStep > fieldset > ul > li > ul > li {
+		.givingWizard > ul > li, .wizardStep > ul > li, .wizardStep > ul > li > fieldset > ul > li, .wizardStep > ul > li > fieldset > ul > li > ul > li {
 			display: inline-block;
 			position: relative;
 		}
@@ -58,7 +58,7 @@ input[id$="btnChooseLogin"] {
     margin-right: 40px;
 }
 
-#wizStep1 > ul > li {
+.wizardStep > ul > li {
     display: block;
     width: 400px;
     margin: 25px auto 0;
@@ -168,3 +168,8 @@ table[id$="rblPaymentMethod"] {
     margin: 20px 0 0 37px;
     width: 130px;
 }
+
+#wizStep3 > ul > li {
+    width: 900px;
+}
+
