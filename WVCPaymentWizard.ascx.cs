@@ -14,6 +14,9 @@
     using System.Collections.Generic;
     using System.Text;
     using System.Linq;
+    using System.IO;
+    using System.Xml.Serialization;
+    using System.Runtime.Serialization.Json;
     using System.Web.Profile;
     using System.Web.UI;
     using System.Web.UI.HtmlControls;
@@ -84,6 +87,7 @@
         private RepeatingPayment _repeatingPayment;
         private PersonAddress currentAddress = null;
         private ContributionFundCollection SelectedFunds = new ContributionFundCollection();
+        private String SelectedFundsSerialized = "";
         private FundCollection AvailableFunds = new FundCollection();
 
         private Person _person;
@@ -91,7 +95,7 @@
 
         private const string ModuleUserName = "WVCPaymentWizard";
 
-        public string ConfirmationNumber;
+        public string ConfirmationNumber = "";
 
         protected void Page_Init(object sender, EventArgs e)
         {
@@ -166,10 +170,14 @@
                             Person person = new Person(iPersonId);
                             this._person = new Person(iPersonId);
                             this.SelectedFunds = GetSelectedFundCollection();
+                            /*this.SelectedFundsSerialized = this.SerializeToString(this.SelectedFunds,typeof(ContributionFundCollection));
+                            this.hfSerializedFunds.Value = this.SelectedFundsSerialized;*/
                             this.LoadGateways();
                             if (this.SubmitPreAuthorization())
                             {
                                 this.buildConfirmationScreen(person);
+                                this.hfConfirmationID.Value = this.ConfirmationNumber.ToString();
+                                this.hfPersonID.Value = this._person.PersonID.ToString();
                                 this.hfTracker.Value = "2";
                             }
                             else 
@@ -183,6 +191,12 @@
                         }
                         break;
                     case "2":
+                        /*DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(ContributionFundCollection));
+                        using(MemoryStream ms = new MemoryStream(System.Text.Encoding.ASCII.GetBytes(hfSerializedFunds.Value.Trim()))) {
+                            this.SelectedFunds = (ContributionFundCollection)serializer.ReadObject(ms);
+                        }*/
+                        this._person = new Person(Convert.ToInt32(this.hfPersonID.Value));
+                        this.LoadGateways();
                         if (this.SubmitTransaction())
                         {
                             this.buildThankYou();
@@ -197,6 +211,8 @@
             }
         }
 
+        
+        
         protected void buildConfirmationScreen(Person person)
         {
             HtmlGenericControl template = new HtmlGenericControl("script")
@@ -258,6 +274,27 @@
         {
 
 
+        }
+
+        public string SerializeToString(object obj, Type objType)
+        {
+            using(MemoryStream ms = new MemoryStream()) {
+                DataContractJsonSerializer serializer = new DataContractJsonSerializer(objType);
+                serializer.WriteObject(ms,obj);
+                ms.Position = 0;
+                StreamReader reader = new StreamReader(ms);
+                return reader.ReadToEnd();
+            }
+            
+            /* Old XML Serializer
+             * XmlSerializer serializer = new XmlSerializer(obj.GetType());
+
+            using (StringWriter writer = new StringWriter())
+            {
+                serializer.Serialize(writer, obj);
+
+                return writer.ToString();
+            }*/
         }
 
         protected void PopulateStaticControls()
@@ -515,11 +552,11 @@
                         bool flag;
                         if (rblPaymentMethod.SelectedValue == "CC")
                         {
-                            flag = gatewayAccount.Authorize(TransactionType.PreAuth, this.tbCCNumber.Text, this.tbCCCIN.Text, this.ddlExpMonth.SelectedValue, this.ddlExpYear.SelectedValue, -1, this._person.PersonID, this.tbFirstName.Text, this.tbFirstName.Text, this.tbLastName.Text, this.tbAddress1.Text, this.tbCity.Text, this.tbState.Text, this.tbZip.Text, this.tbPhone.Text, this.tbEmail.Text, totalAmount, "", DateTime.MinValue, PaymentFrequency.Unknown, 0, this._validateCardNumber);
+                            flag = gatewayAccount.Authorize(TransactionType.PreAuth, this.tbCCNumber.Text, this.tbCCCIN.Text, this.ddlExpMonth.SelectedValue, this.ddlExpYear.SelectedValue, -1, this._person.PersonID, this._person.FirstName, this._person.FirstName, this._person.LastName, this._person.PrimaryAddress.StreetLine1, this._person.PrimaryAddress.City, this._person.PrimaryAddress.State, this._person.PrimaryAddress.PostalCode, this._person.Phones.FindByType(276).ToString(), this._person.Emails.FirstActive, totalAmount, "", DateTime.MinValue, PaymentFrequency.Unknown, 0, this._validateCardNumber);
                         }
                         else
                         {
-                            flag = gatewayAccount.AuthorizeACH(TransactionType.PreAuth, this.tbAccountNumber.Text.Trim(), this.tbRoutingNumber.Text.Trim(), this.ddlAccountType.Items[0].Selected, this._person.PersonID, this.tbFirstName.Text.Trim(), this.tbFirstName.Text.Trim(), this.tbLastName.Text.Trim(), this.tbAddress1.Text.Trim(), this.tbCity.Text.Trim(), this.tbState.Text.Trim(), this.tbZip.Text.Trim(), this.tbPhone.Text.Trim(), this.tbEmail.Text.Trim(), totalAmount, "", DateTime.MinValue, PaymentFrequency.Unknown, 0);
+                            flag = gatewayAccount.AuthorizeACH(TransactionType.PreAuth, this.tbAccountNumber.Text.Trim(), this.tbRoutingNumber.Text.Trim(), this.ddlAccountType.Items[0].Selected, this._person.PersonID, this._person.FirstName, this._person.FirstName, this._person.LastName, this._person.PrimaryAddress.StreetLine1, this._person.PrimaryAddress.City, this._person.PrimaryAddress.State, this._person.PrimaryAddress.PostalCode, this._person.Phones.FindByType(276).ToString(), this._person.Emails.FirstActive, totalAmount, "", DateTime.MinValue, PaymentFrequency.Unknown, 0);
                         }
                         if (!flag)
                         {
@@ -540,7 +577,6 @@
         {
             try
             {
-                bool flag = this._repeatingPayment != null && this._repeatingPayment.RepeatingPaymentId != -1;
                 ContributionFundCollection selectedFundCollection = this.GetSelectedFundCollection();
                 decimal totalAmount = Convert.ToDecimal(this.hfTotalContribution.Value);
                 bool result;
@@ -567,13 +603,7 @@
             IL_F3:
                 GatewayAccount gatewayAccount;
                 string accountNumber;
-                if (flag)
-                {
-                    gatewayAccount = this._repeatingPayment.GatewayAccount;
-                    accountNumber = this._repeatingPayment.AccountNumber;
-                }
-                else
-                {
+               
                     if (rblPaymentMethod.SelectedValue == "CC")
                     {
                         gatewayAccount = this.ccGatewayAcct;
@@ -583,13 +613,12 @@
                     {
                         gatewayAccount = this.achGatewayAcct;
                         accountNumber = this.MaskAccountNumber(this.tbAccountNumber.Text);
-                    }
-                }
+                    }   
 
                 Transaction transaction = null;
                 if (gatewayAccount.RequiresPaymentGateway)
                 {
-                    string confirmationID = base.Request.QueryString["confid"];
+                    string confirmationID = this.hfConfirmationID.ToString();
                     gatewayAccount.ProcessorClass.PaymentFrequency = PaymentFrequency.One_Time;
                     if (gatewayAccount.Authorize(confirmationID))
                     {
@@ -601,14 +630,14 @@
                 {
                     if (rblPaymentMethod.SelectedValue == "CC")
                     {
-                        if (gatewayAccount.Authorize(TransactionType.Sale, this.tbCCNumber.Text, this.tbCCCIN.Text, this.ddlExpMonth.SelectedValue, this.ddlExpYear.SelectedValue, -1, this._person.PersonID, this.tbFirstName.Text.Trim(), this.tbFirstName.Text.Trim(), this.tbLastName.Text.Trim(), this.tbAddress1.Text, this.tbCity.Text, this.tbState.Text, this.tbZip.Text.Trim(), this.tbPhone.Text.Trim(), this.tbEmail.Text.Trim(), totalAmount, stringBuilder.ToString(), DateTime.MinValue, PaymentFrequency.One_Time, 0, this._validateCardNumber))
+                        if (gatewayAccount.Authorize(TransactionType.Sale, this.tbCCNumber.Text, this.tbCCCIN.Text, this.ddlExpMonth.SelectedValue, this.ddlExpYear.SelectedValue, -1, this._person.PersonID, this._person.FirstName, this._person.FirstName, this._person.LastName, this._person.PrimaryAddress.StreetLine1, this._person.PrimaryAddress.City, this._person.PrimaryAddress.State, this._person.PostalCode, this._person.Phones.FindByType(276).ToString(), this._person.Emails.FirstActive, totalAmount, stringBuilder.ToString(), DateTime.MinValue, PaymentFrequency.One_Time, 0, this._validateCardNumber))
                         {
                             transaction = gatewayAccount.Transaction;
                         }
                     }
                     else
                     {
-                        if (gatewayAccount.AuthorizeACH(TransactionType.Sale, this.tbAccountNumber.Text.Trim(), this.tbRoutingNumber.Text.Trim(), ddlAccountType.Items[0].Selected, this._person.PersonID, this.tbFirstName.Text.Trim(), this.tbFirstName.Text.Trim(), this.tbLastName.Text.Trim(), this.tbAddress1.Text.Trim(), this.tbCity.Text.Trim(), this.tbState.Text.Trim(), this.tbZip.Text.Trim(), this.tbPhone.Text.Trim(), this.tbEmail.Text.Trim(), totalAmount, stringBuilder.ToString(), DateTime.MinValue, PaymentFrequency.One_Time, 0))
+                        if (gatewayAccount.AuthorizeACH(TransactionType.Sale, this.tbAccountNumber.Text.Trim(), this.tbRoutingNumber.Text.Trim(), ddlAccountType.Items[0].Selected, this._person.PersonID, this._person.FirstName, this._person.FirstName, this._person.LastName, this._person.PrimaryAddress.StreetLine1, this._person.PrimaryAddress.City, this._person.PrimaryAddress.State, this._person.PrimaryAddress.PostalCode, this._person.Phones.FindByType(276).ToString(), this._person.Emails.FirstActive, totalAmount, stringBuilder.ToString(), DateTime.MinValue, PaymentFrequency.One_Time, 0))
                         {
                             transaction = gatewayAccount.Transaction;
                         }
@@ -616,7 +645,7 @@
                 }
                 if (transaction != null)
                 {
-                    transaction.Save(base.CurrentUser.Identity.Name);
+                    transaction.Save(this._person.FullName);
                     if (!transaction.Success)
                     {
                         this.DisplayError("Authorization of your information failed for the following reason(s):", gatewayAccount.Messages);
@@ -629,9 +658,9 @@
                         str = base.CurrentOrganization.Settings["GivingBatchName"];
                     }
                     BatchType batchType = Batch.GetBatchType(transaction.PaymentMethod.Guid);
-                    Batch batch = new Batch(base.CurrentOrganization.OrganizationID, true, str + " " + Enum.GetName(typeof(BatchType), batchType), transaction.TransactionDate, batchType, gatewayAccount.GatewayAccountId, base.CurrentUser.Identity.Name);
+                    Batch batch = new Batch(base.CurrentOrganization.OrganizationID, true, str + " " + Enum.GetName(typeof(BatchType), batchType), transaction.TransactionDate, batchType, gatewayAccount.GatewayAccountId, this._person.FullName);
                     batch.VerifyAmount += transaction.TransactionAmount;
-                    batch.Save(base.CurrentUser.Identity.Name);
+                    batch.Save(this._person.FullName);
                     Contribution contribution = new Contribution();
                     contribution.PersonId = transaction.PersonId;
                     contribution.TransactionId = transaction.TransactionId;
@@ -643,7 +672,7 @@
                     contribution.AccountNumber = transaction.RepeatingPayment.AccountNumber;
                     contribution.ContributionFunds = selectedFundCollection;
                     contribution.Memo = stringBuilder.ToString();
-                    contribution.Save(base.CurrentUser.Identity.Name);
+                    contribution.Save(this._person.FullName);
                     this.ConfirmationNumber = "Confirmation Number: " + contribution.TransactionNumber;
                     try
                     {
