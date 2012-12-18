@@ -173,3 +173,11 @@ table[id$="rblPaymentMethod"] {
     width: 900px;
 }
 
+#wizStep4 > ul > li {
+    width: 900px;
+}
+
+#wizStep5 > ul > li 
+{
+    width: 900px;
+}
