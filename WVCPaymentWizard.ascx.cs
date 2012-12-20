@@ -80,6 +80,12 @@
 
         [PageSetting("Login Page", "The page that the username and password should be posted against", false)]
         public string LoginPageSetting { get { return base.Setting("LoginPage", "", false); } }
+
+        [BooleanSetting("Test Mode", "Set the module to test mode for CSS tweaking (don't ever run like this in production...)", false, false)]
+        public string TestModeSetting { get { return Setting("TestMode", "false", false); } }
+
+        [BooleanSetting("Show Portal Login", "Show the option for logging into the portal to process giving", false, false)]
+        public string ShowPortalLoginSetting { get { return Setting("ShowPortalLogin", "false", false); } }
         
 
         private GatewayAccount ccGatewayAcct = null;
@@ -156,7 +162,15 @@
                 PopulateStaticControls();
                 this.imgCheckImage.ImageUrl = this.CheckImageURLSetting;
                 this.tbComment.Attributes["placeholder"] = this.CommentCaptionSetting;
-                this.hfTracker.Value = "0";
+                if (Convert.ToBoolean(this.ShowPortalLoginSetting))
+                {
+                    this.hfTracker.Value = "0";
+                }
+                else
+                {
+                    this.hfTracker.Value = "1";
+                }
+                
                 this.btnChooseLogin.Value = this.ChooseLoginTextSetting;
                 this.btnGiveNow.Value = this.GiveNowTextSetting;
                 this.hfLoginLocation.Value = Page.ResolveUrl("default.aspx?page="+this.LoginPageSetting.ToString()).ToString();
@@ -380,7 +394,7 @@
                 if ((phoneSearch.PersonID == person.PersonID) && (person.LastName.ToLower() == sLastName.ToLower()))
                 {
                     this.currentAddress = person.Addresses.FindByType(41);
-                    if(this.currentAddress.Address.PostalCode.Substring(0,4) == sZip ) 
+                    if(this.currentAddress.Address.PostalCode.Substring(0,5) == sZip ) 
                     {
                         iFoundPersonId = person.PersonID;
                     }
@@ -556,6 +570,7 @@
 
         private bool SubmitPreAuthorization()
         {
+            if(!Convert.ToBoolean(this.TestModeSetting)){
             try
             {
 
@@ -593,11 +608,14 @@
             {
                 throw new ArenaApplicationException("Error occurred during preauthorization", inner);
             }
+
+        }
             return true;
         }
         
         private bool SubmitTransaction()
         {
+            if(!Convert.ToBoolean(this.TestModeSetting)){
             try
             {
                 ContributionFundCollection selectedFundCollection = this.GetSelectedFundCollection();
@@ -718,6 +736,7 @@
             catch (Exception inner)
             {
                 throw new ArenaApplicationException("Error occurred during Authorization", inner);
+            }
             }
             return true;
            
