@@ -61,7 +61,6 @@ input[id$="btnChooseLogin"] {
 .wizardStep > ul > li {
     display: block;
     width: 400px;
-    margin: 25px auto 0;
 }
 
 #wizStep2 > fieldset {
