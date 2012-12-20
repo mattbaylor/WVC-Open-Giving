@@ -101,14 +101,13 @@ jQuery.noConflict();
             });
 
             $('.dollar').keydown(function(event) {
-                alert(event.which);
                 if(event.shiftKey){
                     event.preventDefault();
                     return false;
                 }
                 switch(event.which){
                     case 48: case 49: case 50: case 51: case 52: case 53: case 54: case 55: case 56: case 57:
-                    case 8: case 9: case 96: case 37: case 39: case 97: case 98: case 99: case 100: case 101: case 102: case 103: case 104: case 105: case 110:
+                    case 8: case 9: case 96: case 37: case 39: case 40: case 97: case 98: case 99: case 100: case 101: case 102: case 103: case 104: case 105: case 110:
                         break;
                     default:
                         event.preventDefault();
@@ -123,7 +122,7 @@ jQuery.noConflict();
                 }
                 switch(event.which){
                     case 48: case 49: case 50: case 51: case 52: case 53: case 54: case 55: case 56: case 57:
-                    case 8: case 9: case 96: case 37: case 39: case 97: case 98: case 99: case 100: case 101: case 102: case 103: case 104: case 105:
+                    case 8: case 9: case 96: case 37: case 39: case 40: case 97: case 98: case 99: case 100: case 101: case 102: case 103: case 104: case 105:
                         break;
                     default:
                         event.preventDefault();
