@@ -1,13 +1,47 @@
-﻿function validateCreditCard(accountNumber, allowedCards) {
+﻿/********************************
+* Author: Matt Baylor (@mattbaylor)
+* Purpose: Create a user portal control that allows people to donate on Arena without logging in.
+* All version history is on GitHub
+* Code liberally borrowed from Arena compiled sources, Den Boice, Jason Offut and Daniel Hazelbaker.
+*
+* WVC-Open-Giving is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* WVC-Open-Giving is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with WVC-Open-Giving.  If not, see <http://www.gnu.org/licenses/>.
+********************************/
+
+//Make sure we allow this kind of credit card
+function validateCreditCard(accountNumber, allowedCards) {
+    
+    //Set up for pessimistic checking
     var cardType = "unknown";
+
+    //Use an algorithm for detecting card type
     cardType = getCreditCardType(accountNumber);
+
+    //Test the card type against the list of allowed cards
     if (allowedCards.indexOf(cardType) != -1) {
+        
+        //If it's in the list, then make sure it passes a mod 10 check
         return checkCreditCard(accountNumber, cardType);
+
     } else {
-    return false;
+
+        //Not in the list return false
+        return false;
     }
 }
 
+//Test card type. Supported known cards: MasterCard, Visa, AmEx, Discover.
+//TODO: Add more card types
 function getCreditCardType(accountNumber) {
 
     //start without knowing the credit card type
