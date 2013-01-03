@@ -11,8 +11,6 @@
 		left: 0px;
 		padding: 0px;
 		height: 100%;
-		width: 100%;
-		overflow: hidden;
 	}
 
 		.givingWizard > ul > li, .wizardStep > ul > li, .wizardStep > ul > li > fieldset > ul > li, .wizardStep > ul > li > fieldset > ul > li > ul > li {
@@ -132,7 +130,6 @@ table[id$="rblPaymentMethod"] {
 	border:none;
 }
 .label {
-	border-right: black thin solid;
 	padding: 0 5px 0 0;
 	vertical-align: top;
 }
@@ -179,5 +176,10 @@ table[id$="rblPaymentMethod"] {
 
 #wizStep5 > ul > li 
 {
-    width: 900px;
+    width: 400px;
+}
+
+.confirmationText 
+{
+    max-width:600px;
 }
